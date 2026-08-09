@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>솜이 (솜비) | 버츄얼 제작 작가 상세페이지</title>
+
+<!-- 폰트: Pretendard(본문) + Do Hyeon(타이틀) + Gaegu(포인트 손글씨) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Do+Hyeon&family=Gaegu:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+
+<style>
+/* ============================================================
+   🎨 디자인 토큰 — 얼음/유리(글라스모피즘) 테마, 메인 컬러 #D3E8FF
+============================================================ */
+:root{
+  --ice-50:#F7FBFF;
+  --ice-100:#EAF4FF;
+  --ice-200:#D3E8FF;      /* 요청하신 메인 컬러 */
+  --ice-300:#B7D9FA;
+  --ice-400:#8FBFEF;
+  --ice-500:#649FDD;
+  --ice-600:#4179B8;
+  --ice-700:#2E5C8F;
+  --navy:#1B3350;         /* 본문 텍스트 (차가운 톤의 다크 네이비) */
+  --navy-sub:#5C7999;     /* 보조 텍스트 */
+  --glass-fill: rgba(255,255,255,.46);
+  --glass-fill-strong: rgba(255,255,255,.72);
+  --glass-fill-deep: rgba(210,232,255,.55);
+  --glass-border: rgba(255,255,255,.8);
+  --glass-shadow: 0 10px 36px rgba(65,121,184,.16);
+  --glass-shadow-lg: 0 18px 54px rgba(46,92,143,.22);
+  --warm-glow:#FFF3D6;    /* 얼음 속 온기 포인트 — 아주 소량만 사용 */
+  --radius-xl:32px;
+  --radius-lg:24px;
+  --radius-md:16px;
+  --radius-sm:10px;
+  --nav-h:72px;
+  --tr:.35s cubic-bezier(.4,0,.2,1);
+  --font-display:'Do Hyeon',sans-serif;
+  --font-accent:'Gaegu',cursive;
+  --font-body:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,sans-serif;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  font-family:var(--font-body);
+  color:var(--navy);
+  background:
+    radial-gradient(circle at 12% -8%, rgba(211,232,255,.95), transparent 42%),
+    radial-gradient(circle at 108% 6%, rgba(183,217,250,.75), transparent 40%),
+    radial-gradient(circle at 45% 115%, rgba(234,244,255,.9), transparent 48%),
+    linear-gradient(180deg,#F9FCFF 0%, #EAF4FF 45%, #DCEBFB 100%);
+  min-height:100vh;
+  overflow-x:hidden;
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+a{color:inherit;text-decoration:none;}
+img{max-width:100%;display:block;}
+button{cursor:pointer;font-family:inherit;border:none;background:none;color:inherit;}
+ul,ol{list-style:none;}
+input,textarea,select{font-family:inherit;font-size:inherit;color:inherit;}
+:focus-visible{outline:2.5px solid var(--ice-600);outline-offset:2px;border-radius:4px;}
+.container{width:100%;max-width:1120px;margin:0 auto;padding:0 24px;}
+.section{padding:96px 0;position:relative;}
+.section-eyebrow{
+  font-family:var(--font-accent);
+  font-size:15px;font-weight:700;color:var(--ice-600);
+  text-align:center;margin-bottom:8px;letter-spacing:.02em;
+}
+.section-title{
+  font-family:var(--font-display);
+  font-size:clamp(24px,4vw,36px);
+  text-align:center;color:var(--navy);
+  margin-bottom:14px;letter-spacing:-.01em;
+}
+.section-sub{
+  text-align:center;color:var(--navy-sub);font-size:15px;
+  max-width:560px;margin:0 auto 48px;line-height:1.75;
+}
+.ice-divider{
+  width:56px;height:4px;margin:0 auto 40px;border-radius:99px;
+  background:linear-gradient(90deg,var(--ice-300),var(--ice-600));
+}
+
+/* ============================================================
+   ❄ 배경 앰비언트 블롭 (장식 — 삭제해도 레이아웃엔 영향 없음)
+============================================================ */
+.bg-orb{position:fixed;border-radius:50%;filter:blur(70px);pointer-events:none;z-index:0;opacity:.55;}
+.orb1{width:420px;height:420px;top:-120px;left:-100px;background:radial-gradient(circle,var(--ice-200),transparent 70%);animation:driftA 26s ease-in-out infinite;}
+.orb2{width:360px;height:360px;top:30%;right:-140px;background:radial-gradient(circle,var(--ice-300),transparent 70%);animation:driftB 32s ease-in-out infinite;}
+.orb3{width:300px;height:300px;bottom:-100px;left:38%;background:radial-gradient(circle,var(--warm-glow),transparent 72%);opacity:.35;animation:driftA 38s ease-in-out infinite reverse;}
+@keyframes driftA{0%,100%{transform:translate(0,0);}50%{transform:translate(30px,40px);}}
+@keyframes driftB{0%,100%{transform:translate(0,0);}50%{transform:translate(-36px,26px);}}
+@media (prefers-reduced-motion: reduce){
+  .bg-orb,*{animation-duration:.001ms !important;animation-iteration-count:1 !important;}
+}
+
+/* ============================================================
+   🧊 글라스(유리구슬) 공통 컴포넌트 — 시그니처: 호버 시 서릿빛 결정 스침
+============================================================ */
+.glass{
+  background:var(--glass-fill);
+  backdrop-filter:blur(22px) saturate(160%);
+  -webkit-backdrop-filter:blur(22px) saturate(160%);
+  border:1px solid var(--glass-border);
+  border-radius:var(--radius-lg);
+  box-shadow:var(--glass-shadow), inset 0 1px 0 rgba(255,255,255,.65);
+  position:relative;
+  overflow:hidden;
+  isolation:isolate;
+}
+.glass::before{
+  content:'';position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:linear-gradient(115deg, transparent 32%, rgba(255,255,255,.65) 48%, rgba(255,255,255,.18) 55%, transparent 72%);
+  transform:translateX(-130%);
+  transition:transform .95s cubic-bezier(.2,.7,.3,1);
+}
+.glass:hover::before{transform:translateX(130%);}
+.glass-strong{background:var(--glass-fill-strong);}
+
+/* 육각 결정 뱃지(시그니처 포인트 도형) */
+.facet-badge{
+  clip-path:polygon(50% 0%, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%);
+  background:linear-gradient(150deg,var(--ice-300),var(--ice-600));
+  display:flex;align-items:center;justify-content:center;color:#fff;
+  box-shadow:0 6px 18px rgba(65,121,184,.35);
+}
+
+/* ============================================================
+   ❆ HERO (상단 프로필 / 자기소개)
+============================================================ */
+.hero{padding-top:80px;padding-bottom:72px;position:relative;z-index:1;}
+.hero-inner{display:grid;grid-template-columns:290px 1fr;gap:56px;align-items:center;}
+.hero-avatar-ring{
+  width:100%;aspect-ratio:1/1;border-radius:var(--radius-xl);
+  background:linear-gradient(145deg,var(--ice-200),var(--ice-500));
+  padding:10px;box-shadow:var(--glass-shadow-lg);position:relative;
+}
+.hero-avatar-ring::after{
+  content:'';position:absolute;inset:-14px;border-radius:calc(var(--radius-xl) + 14px);
+  border:1.5px solid rgba(255,255,255,.6);pointer-events:none;
+}
+.hero-avatar{width:100%;height:100%;object-fit:cover;border-radius:var(--radius-lg);background:#fff;}
+.hero-eyebrow{
+  display:inline-flex;align-items:center;gap:7px;font-family:var(--font-accent);
+  font-size:16px;font-weight:700;color:var(--ice-600);margin-bottom:14px;
+}
+.hero-eyebrow::before{content:'❄';}
+.hero-name{font-family:var(--font-display);font-size:clamp(28px,4.4vw,42px);line-height:1.28;color:var(--navy);margin-bottom:18px;}
+.hero-name em{
+  font-style:normal;
+  background:linear-gradient(135deg,var(--ice-500),var(--ice-700));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.hero-desc{font-size:15.5px;line-height:1.85;color:var(--navy-sub);margin-bottom:26px;}
+.reservation-badge{
+  display:inline-flex;align-items:center;gap:12px;padding:14px 20px;border-radius:99px;
+  margin-bottom:28px;
+}
+.reservation-badge .dot{width:11px;height:11px;border-radius:50%;background:#4CAF7D;box-shadow:0 0 0 4px rgba(76,175,125,.18);flex-shrink:0;}
+.reservation-badge.status-closed .dot{background:#E4785A;box-shadow:0 0 0 4px rgba(228,120,90,.18);}
+.reservation-badge.status-wait .dot{background:#E3A63E;box-shadow:0 0 0 4px rgba(227,166,62,.18);}
+.reservation-badge strong{display:block;font-size:12.5px;color:var(--navy-sub);font-weight:700;letter-spacing:.02em;}
+.reservation-badge p{font-size:14.5px;font-weight:700;color:var(--navy);margin-top:1px;}
+@media (max-width:760px){
+  .hero-inner{grid-template-columns:1fr;text-align:center;gap:32px;}
+  .hero-avatar-ring{max-width:220px;margin:0 auto;}
+  .hero-eyebrow{justify-content:center;}
+}
+</style>
+</head>
+<body>
+
+<div class="bg-orb orb1" aria-hidden="true"></div>
+<div class="bg-orb orb2" aria-hidden="true"></div>
+<div class="bg-orb orb3" aria-hidden="true"></div>
+
+<!-- ===== 1. 상단 : 프로필 · 자기소개 · 예약현황 ===== -->
+<header class="hero" id="top">
+  <div class="container hero-inner">
+    <div class="hero-avatar-ring">
+      <!-- ✏️ 이미지 교체 위치 : 프로필 사진 (정사각형 비율 권장) — 아래 src="" 링크만 원하는 이미지 주소로 바꿔주세요 -->
+      <img class="hero-avatar" src="https://placehold.co/320x320/D3E8FF/2E5C8F?text=SOMI" alt="솜이 작가 프로필 이미지">
+    </div>
+    <div class="hero-text">
+      <p class="hero-eyebrow">VIRTUAL CHARACTER ARTIST</p>
+      <h1 class="hero-name">버츄얼 제작 작가<br><em>솜이</em>입니다</h1>
+      <p class="hero-desc">
+        안녕하세요.<br>
+        버츄얼 제작 작가 솜이입니다.<br><br>
+        사랑스러운 디자인과 자연스러운 움직임으로,<br>
+        오래도록 함께할 버츄얼을 제작합니다.<br><br>
+        버츄얼을 처음 시작하시는 분들도 부담 없이 방송을 시작하실 수 있도록<br class="br-desktop">
+        디자인부터 리깅, VTube Studio 적용까지 함께 도와드립니다.
+      </p>
+      <!-- ✏️ 예약 현황 ON/OFF 위치 : 이 부분은 페이지 하단 스크립트의 "RESERVATION_OPEN" 값(true/false)만 바꾸면
+           초록색(예약 가능) ↔ 빨간색(예약 불가)으로 자동 전환됩니다. 아래 문구/클래스는 초기값일 뿐 스크립트가 덮어씁니다. -->
+      <div class="reservation-badge glass status-open" id="reservationBadge">
+        <span class="dot"></span>
+        <div>
+          <strong>현재 예약 현황</strong>
+          <p id="reservationText">예약 가능 · 순차 상담 진행 중</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<style>
+/* ============================================================
+   ❄ 2. 작업 과정 — 제작 항목 그리드
+============================================================ */
+.section-process{position:relative;z-index:1;}
+.process-group-title{
+  font-family:var(--font-display);font-size:18px;color:var(--ice-700);
+  text-align:center;margin-bottom:22px;letter-spacing:.01em;
+}
+.item-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+  gap:16px;max-width:920px;margin:0 auto 52px;
+}
+.item-card{padding:16px;text-align:center;border-radius:var(--radius-md);transition:transform var(--tr);}
+.item-card:hover{transform:translateY(-5px);}
+.item-card-img{
+  width:100%;aspect-ratio:1/1;border-radius:var(--radius-sm);overflow:hidden;margin-bottom:12px;
+  border:1px solid rgba(255,255,255,.8);box-shadow:0 6px 16px rgba(65,121,184,.14);
+}
+.item-card-img img{width:100%;height:100%;object-fit:cover;}
+.item-card-name{font-size:13.5px;font-weight:700;color:var(--navy);line-height:1.4;}
+
+/* 작업 순서 타임라인 */
+.workflow-title{font-family:var(--font-display);font-size:18px;color:var(--ice-700);text-align:center;margin-bottom:28px;}
+.workflow-track{
+  display:flex;gap:0;overflow-x:auto;padding:8px 4px 20px;scroll-snap-type:x proximity;
+}
+.workflow-step{
+  flex:0 0 200px;scroll-snap-align:start;display:flex;align-items:center;gap:0;
+}
+.workflow-card{padding:16px;width:190px;border-radius:var(--radius-md);position:relative;}
+.workflow-card-img{width:100%;aspect-ratio:4/3;border-radius:var(--radius-sm);overflow:hidden;margin-bottom:10px;border:1px solid rgba(255,255,255,.8);}
+.workflow-card-img img{width:100%;height:100%;object-fit:cover;}
+.workflow-card-title{font-size:13.5px;font-weight:700;color:var(--navy);margin-bottom:4px;}
+.workflow-card-desc{font-size:11.5px;color:var(--navy-sub);line-height:1.6;}
+.workflow-arrow{flex:0 0 26px;display:flex;align-items:center;justify-content:center;color:var(--ice-500);font-size:16px;}
+.workflow-track::-webkit-scrollbar{height:6px;}
+.workflow-track::-webkit-scrollbar-thumb{background:var(--ice-300);border-radius:3px;}
+.workflow-hint{text-align:center;font-size:12px;color:var(--navy-sub);margin-top:4px;}
+.workflow-hint::before{content:'↔ ';}
+@media(min-width:900px){.workflow-hint{display:none;}}
+
+/* ============================================================
+   🎬 3. 포트폴리오
+============================================================ */
+.pf-cat-tabs{display:flex;gap:10px;justify-content:center;margin-bottom:32px;flex-wrap:wrap;}
+.pf-cat-btn{
+  padding:11px 26px;border-radius:99px;font-size:14px;font-weight:700;color:var(--navy-sub);
+  background:var(--glass-fill);border:1.5px solid var(--glass-border);
+  backdrop-filter:blur(12px);transition:all var(--tr);
+}
+.pf-cat-btn.active{background:linear-gradient(135deg,var(--ice-500),var(--ice-700));color:#fff;border-color:transparent;box-shadow:0 8px 20px rgba(65,121,184,.32);}
+.pf-cat-btn:hover:not(.active){border-color:var(--ice-500);color:var(--ice-700);}
+.pf-panel{display:none;}
+.pf-panel.active{display:block;}
+.slider-root{max-width:900px;margin:0 auto;padding:18px;}
+.slider-stage{position:relative;width:100%;aspect-ratio:16/9;border-radius:var(--radius-sm);overflow:hidden;background:#0e1c2b;}
+.slider-slide{position:absolute;inset:0;opacity:0;pointer-events:none;transition:opacity .4s;}
+.slider-slide.active{opacity:1;pointer-events:auto;}
+.slider-slide iframe{width:100%;height:100%;border:0;display:block;}
+.slider-btn{
+  position:absolute;top:50%;transform:translateY(-50%);width:40px;height:40px;border-radius:50%;
+  background:rgba(255,255,255,.85);backdrop-filter:blur(6px);box-shadow:0 4px 14px rgba(0,0,0,.18);
+  display:flex;align-items:center;justify-content:center;font-size:15px;color:var(--ice-700);z-index:5;transition:background var(--tr);
+}
+.slider-btn:hover{background:var(--ice-500);color:#fff;}
+.slider-btn.prev{left:12px;}.slider-btn.next{right:12px;}
+.slider-dots{display:flex;gap:8px;justify-content:center;margin-top:16px;}
+.slider-dot{width:9px;height:9px;border-radius:50%;background:var(--ice-300);transition:all .25s;}
+.slider-dot.active{background:var(--ice-700);transform:scale(1.3);}
+.slider-thumbs{display:flex;gap:10px;overflow-x:auto;margin-top:14px;padding-bottom:6px;}
+.slider-thumbs::-webkit-scrollbar{height:6px;}
+.slider-thumbs::-webkit-scrollbar-thumb{background:var(--ice-300);border-radius:3px;}
+.slider-thumb-btn{flex:0 0 auto;width:128px;aspect-ratio:16/9;border-radius:var(--radius-sm);overflow:hidden;border:2.5px solid transparent;transition:border-color .25s,transform .25s;padding:0;}
+.slider-thumb-btn.active{border-color:var(--ice-600);transform:translateY(-3px);}
+.slider-thumb-btn img{width:100%;height:100%;object-fit:cover;}
+
+/* ============================================================
+   💳 4. 가격표
+============================================================ */
+.price-feature{max-width:640px;margin:0 auto 44px;padding:36px;text-align:center;}
+.price-feature-badge{
+  display:inline-block;font-family:var(--font-accent);font-size:14px;font-weight:700;color:#fff;
+  background:linear-gradient(135deg,var(--ice-500),var(--ice-700));padding:6px 18px;border-radius:99px;margin-bottom:16px;
+}
+.price-feature-name{font-family:var(--font-display);font-size:24px;color:var(--navy);margin-bottom:10px;}
+.price-feature-amount{
+  font-family:var(--font-display);font-size:clamp(32px,5vw,44px);
+  background:linear-gradient(135deg,var(--ice-500),var(--ice-700));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  margin-bottom:14px;
+}
+.price-feature-amount small{font-size:16px;-webkit-text-fill-color:var(--navy-sub);}
+.price-feature-desc{font-size:14px;color:var(--navy-sub);line-height:1.8;}
+.price-option-list{max-width:640px;margin:0 auto;padding:8px;}
+.price-row{display:flex;align-items:center;justify-content:space-between;padding:15px 22px;border-bottom:1px solid rgba(183,217,250,.5);}
+.price-row:last-child{border-bottom:none;}
+.price-row-name{font-size:14.5px;font-weight:600;color:var(--navy);}
+.price-row-name small{display:block;font-size:12px;font-weight:500;color:var(--navy-sub);margin-top:2px;}
+.price-row-amount{font-size:15px;font-weight:800;color:var(--ice-700);white-space:nowrap;}
+
+/* ============================================================
+   📌 5. 안내사항
+============================================================ */
+.guide-alert{
+  display:flex;align-items:center;gap:14px;max-width:640px;margin:0 auto 28px;padding:16px 24px;
+  border-radius:var(--radius-md);color:#fff;
+  background:linear-gradient(135deg,var(--ice-600),var(--ice-700));font-size:13.5px;font-weight:700;
+  box-shadow:0 10px 24px rgba(46,92,143,.28);
+}
+.guide-list{max-width:640px;margin:0 auto;padding:30px 34px;}
+.guide-list li{display:flex;gap:10px;font-size:14px;line-height:1.85;color:var(--navy-sub);padding:6px 0;}
+.guide-list li strong{color:var(--navy);}
+.guide-list .heart{color:var(--ice-500);flex-shrink:0;}
+
+/* ============================================================
+   📋 6. 사용 범위
+============================================================ */
+.usage-table-wrap{max-width:620px;margin:0 auto;overflow-x:auto;padding:6px;}
+table.usage-table{width:100%;border-collapse:separate;border-spacing:0;min-width:460px;}
+.usage-table th,.usage-table td{padding:16px 12px;text-align:center;font-size:14px;}
+.usage-table thead th{
+  font-family:var(--font-display);font-size:14.5px;color:var(--navy);
+  background:var(--glass-fill-strong);
+}
+.usage-table thead th:first-child{border-top-left-radius:var(--radius-md);}
+.usage-table thead th:last-child{border-top-right-radius:var(--radius-md);}
+.usage-table tbody th{text-align:left;font-weight:700;color:var(--navy);background:rgba(255,255,255,.3);padding-left:20px;}
+.usage-table tbody tr:nth-child(even) td,.usage-table tbody tr:nth-child(even) th{background:rgba(234,244,255,.5);}
+.usage-mark{font-weight:900;font-size:15px;}
+.usage-mark.yes{color:#3E8F6B;}
+.usage-mark.no{color:#D46A56;}
+
+/* ============================================================
+   🧮 7. 양식복사기 & 견적계산기
+============================================================ */
+.request-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:28px;align-items:start;}
+@media(max-width:860px){.request-grid{grid-template-columns:1fr;}}
+.est-card,.form-card{padding:28px;}
+.est-card h3,.form-card h3{font-family:var(--font-display);font-size:18px;color:var(--ice-700);margin-bottom:18px;}
+.est-block-label{font-size:12.5px;font-weight:700;color:var(--navy-sub);margin:18px 0 10px;letter-spacing:.02em;}
+.est-block-label:first-of-type{margin-top:0;}
+.pkg-option{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:12px 14px;border-radius:var(--radius-sm);border:1.5px solid rgba(183,217,250,.6);
+  background:rgba(255,255,255,.4);margin-bottom:8px;cursor:pointer;transition:all var(--tr);
+}
+.pkg-option:hover{border-color:var(--ice-500);}
+.pkg-option.checked{background:var(--ice-100);border-color:var(--ice-600);}
+.pkg-option-left{display:flex;align-items:center;gap:10px;font-size:13.5px;font-weight:600;}
+.pkg-option input{accent-color:var(--ice-600);width:16px;height:16px;flex-shrink:0;}
+.pkg-option-price{font-size:12.5px;font-weight:800;color:var(--ice-700);white-space:nowrap;}
+.opt-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+@media(max-width:480px){.opt-grid{grid-template-columns:1fr;}}
+.review-banner{
+  display:flex;align-items:center;gap:10px;font-size:12.5px;font-weight:700;color:var(--ice-700);
+  background:var(--ice-100);border:1px dashed var(--ice-400);border-radius:var(--radius-sm);
+  padding:11px 14px;margin:18px 0;
+}
+.receipt-box{border:1.5px dashed var(--ice-500);border-radius:var(--radius-md);padding:16px 18px;margin-top:6px;background:rgba(255,255,255,.35);}
+.receipt-empty{font-size:13px;color:var(--navy-sub);text-align:center;padding:10px 0;}
+.receipt-item{display:flex;justify-content:space-between;font-size:13px;padding:5px 0;border-bottom:1px dashed rgba(183,217,250,.7);}
+.receipt-item:last-of-type{border-bottom:none;}
+.receipt-total{display:flex;justify-content:space-between;font-size:16px;font-weight:900;padding-top:10px;border-top:2px solid var(--ice-600);margin-top:6px;color:var(--ice-700);}
+.form-field{margin-bottom:16px;}
+.form-field label{display:block;font-size:13px;font-weight:700;color:var(--navy);margin-bottom:6px;}
+.form-field label small{font-weight:500;color:var(--navy-sub);}
+.form-field input,.form-field textarea{
+  width:100%;padding:12px 14px;border-radius:var(--radius-sm);border:1.5px solid rgba(183,217,250,.7);
+  background:rgba(255,255,255,.55);font-size:13.5px;color:var(--navy);transition:border-color var(--tr);resize:vertical;
+}
+.form-field input:focus,.form-field textarea:focus{border-color:var(--ice-600);}
+.form-field .field-note{font-size:11.5px;color:var(--navy-sub);margin-top:5px;}
+.copy-btn{
+  width:100%;padding:16px;border-radius:99px;margin-top:6px;
+  background:linear-gradient(135deg,var(--ice-500),var(--ice-700));color:#fff;
+  font-size:15px;font-weight:800;box-shadow:0 10px 24px rgba(65,121,184,.35);transition:transform var(--tr);
+}
+.copy-btn:hover{transform:translateY(-3px);}
+.copy-toast{
+  position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(20px);
+  background:var(--navy);color:#fff;padding:13px 26px;border-radius:99px;font-size:13.5px;font-weight:700;
+  opacity:0;pointer-events:none;transition:all .35s;z-index:3000;box-shadow:0 10px 30px rgba(0,0,0,.25);
+}
+.copy-toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* ============================================================
+   🖤 이미지 라이트박스 (클릭 시 이미지 크게 보기)
+============================================================ */
+.lightbox{
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);
+  z-index:4000;align-items:center;justify-content:center;padding:28px;
+}
+.lightbox.open{display:flex;}
+.lightbox-img{
+  max-width:90vw;max-height:88vh;border-radius:var(--radius-sm);object-fit:contain;
+  box-shadow:0 24px 70px rgba(0,0,0,.55);
+}
+.lightbox-close{
+  position:absolute;top:20px;right:26px;width:44px;height:44px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  color:#fff;font-size:24px;line-height:1;background:rgba(255,255,255,.12);
+  cursor:pointer;opacity:.85;transition:opacity .2s,background .2s;
+}
+.lightbox-close:hover{opacity:1;background:rgba(255,255,255,.22);}
+.hero-avatar,.item-card-img img,.workflow-card-img img{cursor:zoom-in;}
+
+/* ============================================================
+   유틸
+============================================================ */
+.back-top{
+  position:fixed;right:22px;bottom:22px;width:48px;height:48px;border-radius:50%;z-index:800;
+  display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--ice-700);
+  opacity:0;pointer-events:none;transform:translateY(10px);transition:all var(--tr);
+}
+.back-top.show{opacity:1;pointer-events:auto;transform:translateY(0);}
+.fade-in{opacity:0;transform:translateY(22px);transition:opacity .7s ease,transform .7s ease;}
+.fade-in.visible{opacity:1;transform:translateY(0);}
+</style>
+
+<!-- ===== 2. 작업 과정 ===== -->
+<section class="section section-process" id="process">
+  <div class="container">
+    <p class="section-eyebrow fade-in">HOW IT WORKS</p>
+    <h2 class="section-title fade-in">작업 과정</h2>
+    <div class="ice-divider fade-in"></div>
+
+    <h3 class="process-group-title fade-in">일러스트 제작 항목</h3>
+    <!-- ✏️ 이 영역의 이미지는 스크립트 하단 "ILLUST_ITEMS" 배열에서 img 링크만 바꾸면 자동 반영됩니다 -->
+    <div class="item-grid fade-in" id="illustItemGrid"></div>
+
+    <h3 class="process-group-title fade-in">리깅 제작 항목</h3>
+    <!-- ✏️ 이 영역의 이미지는 스크립트 하단 "RIGGING_ITEMS" 배열에서 img 링크만 바꾸면 자동 반영됩니다 -->
+    <div class="item-grid fade-in" id="riggingItemGrid"></div>
+
+    <h3 class="workflow-title fade-in">작업 순서</h3>
+    <!-- ✏️ 이 영역의 이미지는 스크립트 하단 "WORKFLOW_STEPS" 배열에서 img 링크만 바꾸면 자동 반영됩니다 -->
+    <div class="workflow-track fade-in" id="workflowTrack"></div>
+    <p class="workflow-hint">옆으로 넘겨서 전체 과정을 확인하세요</p>
+  </div>
+</section>
+
+<!-- ===== 3. 포트폴리오 ===== -->
+<section class="section" id="portfolio">
+  <div class="container">
+    <p class="section-eyebrow fade-in">PORTFOLIO</p>
+    <h2 class="section-title fade-in">영상 포트폴리오</h2>
+    <p class="section-sub fade-in">실제 작업한 리깅 결과물을 영상으로 확인해보세요.</p>
+    <div class="ice-divider fade-in"></div>
+
+    <!-- ✏️ 영상 교체 위치 : 페이지 하단 스크립트의 "PORTFOLIO_VIDEOS" 배열에서 유튜브 영상 ID만 바꾸면 자동 반영됩니다 -->
+    <div class="pf-cat-tabs fade-in" id="pfCatTabs"></div>
+    <div id="pfPanels"></div>
+  </div>
+</section>
+
+<!-- ===== 4. 가격표 ===== -->
+<section class="section" id="price">
+  <div class="container">
+    <p class="section-eyebrow fade-in">PRICE</p>
+    <h2 class="section-title fade-in">가격표</h2>
+    <div class="ice-divider fade-in"></div>
+
+    <!-- ✏️ 가격 수정 위치 : 페이지 하단 스크립트의 "PACKAGES" 배열 중 첫 번째 항목(price)을 바꾸면 여기와 견적계산기에 동시 반영됩니다 -->
+    <div class="price-feature glass fade-in">
+      <span class="price-feature-badge">버츄얼 데뷔 세트</span>
+      <p class="price-feature-name">디자인 + 파츠분리 일러스트 + 전신 리깅</p>
+      <p class="price-feature-amount"><span id="mainPackagePrice">850,000</span><small>원</small></p>
+      <p class="price-feature-desc">
+        디자인 + LD 파츠분리 일러스트 + 전신 리깅<br>
+        + 기본표정 3종 (하트, 반짝, 정색) + VTube Studio 적용 지원 포함
+      </p>
+    </div>
+
+    <!-- ✏️ 가격 수정 위치 : 페이지 하단 스크립트의 "OPTIONS" 배열 값을 바꾸면 여기와 견적계산기에 동시 반영됩니다 -->
+    <div class="price-option-list glass fade-in" id="priceOptionList"></div>
+  </div>
+</section>
+
+<!-- ===== 5. 안내사항 ===== -->
+<section class="section" id="guide">
+  <div class="container">
+    <p class="section-eyebrow fade-in">GUIDE</p>
+    <h2 class="section-title fade-in">안내사항</h2>
+    <div class="ice-divider fade-in"></div>
+
+    <div class="guide-alert fade-in">
+      <span>⚠️</span>
+      <span>안내사항 미확인으로 인한 문제는 책임지지 않습니다.</span>
+    </div>
+
+    <ul class="guide-list glass fade-in">
+      <li><span class="heart">♡</span><span>VTube Studio 및 아이폰 카메라 환경을 기준으로 제작됩니다.</span></li>
+      <li><span class="heart">♡</span><span>수정은 작업별(일러스트, 리깅) 각 2회씩, 총 4회까지 가능합니다.</span></li>
+      <li><span class="heart">♡</span><span>자세가 좌우 대칭이 아닌 경우, 작업 난이도에 따라 추가 비용이 발생할 수 있습니다.</span></li>
+      <li><span class="heart">♡</span><span>모든 작업물의 저작권은 작가 <strong>[솜비]</strong>에게 있습니다.</span></li>
+      <li><span class="heart">♡</span><span>작업물의 AI 학습 및 AI 활용은 불가합니다.</span></li>
+      <li><span class="heart">♡</span><span>작업물의 2차 가공, 양도 및 재판매는 제한됩니다. (저작권 구매 시 사용 범위가 달라질 수 있으니 하단의 사용 범위표를 참고해주세요.)</span></li>
+      <li><span class="heart">♡</span><span>작업 기간은 7~14일 정도 소요됩니다. (컨펌 진행 및 소통 상황에 따라 변동될 수 있습니다.)</span></li>
+      <li><span class="heart">♡</span><span>안내드린 금액은 기본 금액이며, 캐릭터의 디테일과 작업 난이도에 따라 추가 비용이 발생할 수 있습니다.</span></li>
+      <li><span class="heart">♡</span><span>완성된 작업물은 작가의 포트폴리오 및 SNS에 업로드될 수 있습니다. 공개 일정은 협의하여 조율 가능하며, 비공개 진행 시 추가 비용이 발생합니다.</span></li>
+      <li><span class="heart">♡</span><span>최종본 전달 후 발견된 오류나 작업상의 실수는 1회 무상 수정해드립니다.</span></li>
+    </ul>
+  </div>
+</section>
+
+<!-- ===== 6. 사용 범위 ===== -->
+<section class="section" id="usage">
+  <div class="container">
+    <p class="section-eyebrow fade-in">SCOPE OF USE</p>
+    <h2 class="section-title fade-in">사용 범위</h2>
+    <p class="section-sub fade-in">저작권 구매 여부에 따라 아래와 같이 사용 범위가 달라집니다.</p>
+    <div class="ice-divider fade-in"></div>
+
+    <div class="usage-table-wrap glass fade-in">
+      <table class="usage-table">
+        <thead>
+          <tr><th></th><th>방송용</th><th>저작권 구매</th></tr>
+        </thead>
+        <tbody>
+          <tr><th scope="row">추가금</th><td><span class="usage-mark yes">O</span></td><td><span class="usage-mark yes">O</span></td></tr>
+          <tr><th scope="row">SNS 업로드</th><td><span class="usage-mark yes">O</span></td><td><span class="usage-mark yes">O</span></td></tr>
+          <tr><th scope="row">생방송 및 유튜브 사용</th><td><span class="usage-mark yes">O</span></td><td><span class="usage-mark yes">O</span></td></tr>
+          <tr><th scope="row">굿즈 제작</th><td><span class="usage-mark no">X</span></td><td><span class="usage-mark yes">O</span></td></tr>
+          <tr><th scope="row">타작가 의뢰</th><td><span class="usage-mark no">X</span></td><td><span class="usage-mark yes">O</span></td></tr>
+          <tr><th scope="row">3D 제작</th><td><span class="usage-mark no">X</span></td><td><span class="usage-mark yes">O</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 7. 양식복사기 및 견적계산기 ===== -->
+<section class="section" id="request">
+  <div class="container">
+    <p class="section-eyebrow fade-in">ESTIMATE & REQUEST</p>
+    <h2 class="section-title fade-in">견적 계산기 &amp; 신청서</h2>
+    <p class="section-sub fade-in">원하시는 항목을 선택하고 정보를 입력한 뒤, 버튼을 눌러 신청 내용을 복사해주세요.</p>
+    <div class="ice-divider fade-in"></div>
+
+    <div class="request-grid">
+      <!-- 견적 계산기 -->
+      <div class="est-card glass fade-in">
+        <h3>💠 견적 계산기</h3>
+
+        <p class="est-block-label">선택 메뉴 (하나를 선택해주세요)</p>
+        <!-- ✏️ 가격 수정 위치 : 스크립트의 "PACKAGES" 배열 -->
+        <div id="pkgList"></div>
+
+        <p class="est-block-label">추가 옵션 (복수 선택 가능)</p>
+        <!-- ✏️ 가격 수정 위치 : 스크립트의 "OPTIONS" 배열 -->
+        <div class="opt-grid" id="optList"></div>
+
+        <div class="review-banner">🎁 리뷰 이벤트 : 완성 후기 작성 시 볼빵빵 무료 추가!</div>
+
+        <p class="est-block-label">예상 견적</p>
+        <div class="receipt-box" id="receiptBox">
+          <div class="receipt-empty">선택한 항목이 없습니다</div>
+        </div>
+      </div>
+
+      <!-- 신청서 폼 -->
+      <div class="form-card glass fade-in">
+        <h3>📝 신청서 작성</h3>
+        <div class="form-field">
+          <label>방송 닉네임 / 방송국 주소</label>
+          <input type="text" id="fNickname" placeholder="예) 방송 닉네임 · 치지직/유튜브 주소">
+        </div>
+        <div class="form-field">
+          <label>캐릭터 성별</label>
+          <input type="text" id="fGender" placeholder="예) 여성 / 남성 / 자유 서술">
+        </div>
+        <div class="form-field">
+          <label>캐릭터 컨셉 및 설정 <small>(분위기, 색상, 종족 등 자유 작성)</small></label>
+          <textarea id="fConcept" rows="3" placeholder="원하시는 캐릭터의 분위기, 색상, 종족 등을 자유롭게 적어주세요"></textarea>
+        </div>
+        <div class="form-field">
+          <label>참고 자료 <small>(이미지 링크, 스타일 참고 사진 등)</small></label>
+          <textarea id="fRef" rows="2" placeholder="참고 이미지 링크나 스타일 설명을 적어주세요"></textarea>
+          <p class="field-note">* 타 작가님 작업물 사진은 받지 않습니다.</p>
+        </div>
+        <div class="form-field">
+          <label>기타 요청사항 <small>(데뷔 예정일 등)</small></label>
+          <textarea id="fEtc" rows="2" placeholder="데뷔 예정일 등 추가로 전달할 내용을 적어주세요"></textarea>
+        </div>
+        <button class="copy-btn" id="copyBtn">📋 신청 내용 복사하기</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<button class="back-top glass" id="backTop" aria-label="맨 위로">↑</button>
+<div class="copy-toast" id="copyToast">신청 내용이 복사되었습니다 ❄</div>
+
+<!-- 이미지 라이트박스 : 프로필 사진 및 작업과정 이미지 클릭 시 크게 표시됩니다 -->
+<div class="lightbox" id="lightbox">
+  <span class="lightbox-close" id="lightboxClose">✕</span>
+  <img class="lightbox-img" id="lightboxImg" src="" alt="">
+</div>
+
+<script>
+/* ============================================================================
+   ❄ 솜이 상세페이지 스크립트
+   이 파일의 데이터(이미지 링크 / 영상 ID / 가격)만 바꾸면 페이지 전체에 자동 반영됩니다.
+============================================================================ */
+const won = n => n.toLocaleString('ko-KR');
+
+/* ----------------------------------------------------------------------------
+   ✏️ [예약 현황 ON/OFF] true = 예약 가능(초록) / false = 예약 불가(빨강)
+   아래 값만 true ↔ false로 바꾸면 상단 예약 현황 뱃지 색상과 문구가 자동으로 바뀝니다.
+---------------------------------------------------------------------------- */
+const RESERVATION_OPEN = true;
+const RESERVATION_TEXT_OPEN = '예약 가능 · 순차 상담 진행 중';
+const RESERVATION_TEXT_CLOSED = '예약 불가 · 마감되었습니다';
+
+function applyReservationStatus(){
+  const badge = document.getElementById('reservationBadge');
+  const text = document.getElementById('reservationText');
+  if(RESERVATION_OPEN){
+    badge.classList.remove('status-closed');
+    badge.classList.add('status-open');
+    text.textContent = RESERVATION_TEXT_OPEN;
+  } else {
+    badge.classList.remove('status-open');
+    badge.classList.add('status-closed');
+    text.textContent = RESERVATION_TEXT_CLOSED;
+  }
+}
+applyReservationStatus();
+
+/* ----------------------------------------------------------------------------
+   ✏️ [이미지 수정 영역 1] 일러스트 / 리깅 제작 항목 이미지
+   각 항목의 img 값에 원하는 이미지 주소를 넣어주세요. (정사각형 이미지 권장)
+---------------------------------------------------------------------------- */
+const ILLUST_ITEMS = [
+  { name:'캐릭터 디자인',       img:'https://placehold.co/300x300/D3E8FF/2E5C8F?text=Character' },
+  { name:'파츠분리 일러스트',   img:'https://placehold.co/300x300/D3E8FF/2E5C8F?text=Parts' }
+];
+const RIGGING_ITEMS = [
+  { name:'머리 X',        img:'https://placehold.co/300x300/D3E8FF/2E5C8F?text=Head+X' },
+  { name:'머리 Y',        img:'https://placehold.co/300x300/D3E8FF/2E5C8F?text=Head+Y' },
+  { name:'머리 Z',        img:'https://placehold.co/300x300/D3E8FF/2E5C8F?text=Head+Z' },
+  { name:'몸 X',          img:'https://placehold.co/300x300/D3E8FF/2E5C8F?text=Body+X' },
+  { name:'몸 Y',          img:'https://placehold.co/300x300/D3E8FF/2E5C8F?text=Body+Y' },
+  { name:'몸 Z',          img:'https://placehold.co/300x300/D3E8FF/2E5C8F?text=Body+Z' },
+  { name:'눈동자 추적',   img:'https://placehold.co/300x300/D3E8FF/2E5C8F?text=Eye+Track' },
+  { name:'입모양 (미소)', img:'https://placehold.co/300x300/D3E8FF/2E5C8F?text=Mouth+Smile' },
+  { name:'입모양 (화남)', img:'https://placehold.co/300x300/D3E8FF/2E5C8F?text=Mouth+Angry' },
+  { name:'표정 (하트)',   img:'https://placehold.co/300x300/D3E8FF/2E5C8F?text=Expr+Heart' },
+  { name:'표정 (반짝)',   img:'https://placehold.co/300x300/D3E8FF/2E5C8F?text=Expr+Sparkle' },
+  { name:'표정 (정색)',   img:'https://placehold.co/300x300/D3E8FF/2E5C8F?text=Expr+Neutral' },
+  { name:'머리 물리',     img:'https://placehold.co/300x300/D3E8FF/2E5C8F?text=Head+Physics' },
+  { name:'몸 물리',       img:'https://placehold.co/300x300/D3E8FF/2E5C8F?text=Body+Physics' }
+];
+
+/* ----------------------------------------------------------------------------
+   ✏️ [이미지 수정 영역 2] 작업 순서 이미지
+   각 단계의 img 값에 원하는 이미지 주소를 넣어주세요.
+---------------------------------------------------------------------------- */
+const WORKFLOW_STEPS = [
+  { title:'캐릭터 디자인',         desc:'1:1 상담을 통해 원하시는 콘셉트와 분위기를 함께 정하고, 이를 바탕으로 캐릭터 디자인을 제작합니다.', img:'https://placehold.co/320x240/D3E8FF/2E5C8F?text=01' },
+  { title:'1차 컨펌',              desc:'', img:'https://placehold.co/320x240/D3E8FF/2E5C8F?text=02' },
+  { title:'러프',                  desc:'', img:'https://placehold.co/320x240/D3E8FF/2E5C8F?text=03' },
+  { title:'2차 컨펌',              desc:'', img:'https://placehold.co/320x240/D3E8FF/2E5C8F?text=04' },
+  { title:'파츠분리 일러스트 완성', desc:'자연스러운 움직임을 위해 파츠를 세분화하여 작업합니다. (일부 파츠는 모자이크 처리하였습니다)', img:'https://placehold.co/320x240/D3E8FF/2E5C8F?text=05' },
+  { title:'얼굴 리깅',             desc:'부드러운 움직임과 풍부한 표정 표현으로 캐릭터에 생동감을 더하며, 귀엽고 사랑스러운 표정이 자연스럽게 표현될 수 있도록 섬세하게 리깅합니다.', img:'https://placehold.co/320x240/D3E8FF/2E5C8F?text=06' },
+  { title:'1차 컨펌',              desc:'', img:'https://placehold.co/320x240/D3E8FF/2E5C8F?text=07' },
+  { title:'각도 리깅',             desc:'', img:'https://placehold.co/320x240/D3E8FF/2E5C8F?text=08' },
+  { title:'2차 컨펌',              desc:'', img:'https://placehold.co/320x240/D3E8FF/2E5C8F?text=09' },
+  { title:'최종 파일 전달',        desc:'최종 파일 납품에서 끝나는 것이 아닌, VTube Studio 적용 및 기본 세팅 방법까지 함께 안내해드립니다.', img:'https://placehold.co/320x240/D3E8FF/2E5C8F?text=10' }
+];
+
+/* ----------------------------------------------------------------------------
+   ✏️ [영상 수정 영역] 포트폴리오 유튜브 영상
+   youtu.be/영상ID 형식에서 "영상ID" 부분만 아래 ids 배열에 넣어주세요.
+---------------------------------------------------------------------------- */
+const PORTFOLIO_VIDEOS = [
+  { category:'프리미엄 리깅', ids:['SImrVXD-nYc','4JHl5WBf0kk','Bsza7aJp75U','51YydVOdHQ0','birTBpIdQaI','HMXjHR9QVZo','vRUnV5T--7Y','Zxvn9jl0OXA'] },
+  { category:'기본 리깅',     ids:['EIIQmFsNGBw','Tx_G7H9Xj7U','d4YKoWs36rA'] }
+];
+
+/* ----------------------------------------------------------------------------
+   ✏️ [가격 수정 영역] 아래 숫자(price)만 바꾸면 "4. 가격표"와
+   "7. 견적계산기"에 동시에 반영됩니다.
+---------------------------------------------------------------------------- */
+const PACKAGES = [
+  { id:'pkg_ld_set',  name:'LD 버츄얼 데뷔 세트',              price:850000 },
+  { id:'pkg_sd_set',  name:'SD 버츄얼 세트',                   price:300000 },
+  { id:'pkg_ld_full', name:'LD 버츄얼 전신 파츠분리 일러스트', price:500000 },
+  { id:'pkg_ld_half', name:'LD 버츄얼 반신 파츠분리 일러스트', price:400000 }
+];
+const OPTIONS = [
+  { id:'vbridger',  name:'VBridger',              price:200000, note:'표정과 입모양을 더 풍부하게 표현 가능합니다.' },
+  { id:'exp_normal',name:'일반 표정',              price:30000  },
+  { id:'exp_anim',  name:'애니메이션 표정',        price:40000  },
+  { id:'cheek',     name:'볼빵빵',                price:30000  },
+  { id:'mouthx',    name:'입 X (좌우)',            price:30000  },
+  { id:'prop',      name:'소품 추가',              price:50000  },
+  { id:'arm',       name:'팔 추가',                price:50000,  inquire:true },
+  { id:'hair',      name:'헤어 추가',              price:150000, inquire:true },
+  { id:'outfit',    name:'의상 추가',              price:170000, inquire:true },
+  { id:'copyright', name:'저작권 구매',            price:500000 },
+  { id:'private',   name:'포트폴리오 영구 비공개', price:100000 }
+];
+
+/* ============================================================================
+   렌더링 함수
+============================================================================ */
+function renderItemGrid(elId, items){
+  const el = document.getElementById(elId);
+  el.innerHTML = items.map(it => `
+    <div class="item-card glass">
+      <div class="item-card-img"><img src="${it.img}" alt="${it.name}" loading="lazy"></div>
+      <div class="item-card-name">${it.name}</div>
+    </div>
+  `).join('');
+}
+renderItemGrid('illustItemGrid', ILLUST_ITEMS);
+renderItemGrid('riggingItemGrid', RIGGING_ITEMS);
+
+function renderWorkflow(elId, steps){
+  const el = document.getElementById(elId);
+  el.innerHTML = steps.map((s,i) => `
+    <div class="workflow-step">
+      <div class="workflow-card glass">
+        <div class="workflow-card-img"><img src="${s.img}" alt="${s.title}" loading="lazy"></div>
+        <div class="workflow-card-title">${s.title}</div>
+        ${s.desc ? `<div class="workflow-card-desc">${s.desc}</div>` : ''}
+      </div>
+      ${i < steps.length-1 ? '<span class="workflow-arrow">›</span>' : ''}
+    </div>
+  `).join('');
+}
+renderWorkflow('workflowTrack', WORKFLOW_STEPS);
+
+function renderPriceOptionList(elId, options){
+  const el = document.getElementById(elId);
+  el.innerHTML = options.map(o => `
+    <div class="price-row">
+      <div class="price-row-name">${o.name}${o.note ? `<small>${o.note}</small>` : ''}</div>
+      <div class="price-row-amount">${won(o.price)}원${o.inquire ? '~ (문의)' : ''}</div>
+    </div>
+  `).join('');
+}
+renderPriceOptionList('priceOptionList', OPTIONS);
+document.getElementById('mainPackagePrice').textContent = won(PACKAGES[0].price);
+
+/* ============================================================================
+   포트폴리오 유튜브 슬라이더
+============================================================================ */
+function buildPortfolio(data){
+  const tabsEl = document.getElementById('pfCatTabs');
+  const panelsEl = document.getElementById('pfPanels');
+  tabsEl.innerHTML = '';
+  panelsEl.innerHTML = '';
+
+  data.forEach((cat, idx) => {
+    const btn = document.createElement('button');
+    btn.className = 'pf-cat-btn' + (idx===0 ? ' active' : '');
+    btn.textContent = cat.category;
+    tabsEl.appendChild(btn);
+
+    const panel = document.createElement('div');
+    panel.className = 'pf-panel glass' + (idx===0 ? ' active' : '');
+
+    const root = document.createElement('div');
+    root.className = 'slider-root';
+    const stage = document.createElement('div');
+    stage.className = 'slider-stage';
+
+    cat.ids.forEach((vid,i) => {
+      const slide = document.createElement('div');
+      slide.className = 'slider-slide' + (i===0 ? ' active' : '');
+      const iframe = document.createElement('iframe');
+      iframe.src = `https://www.youtube-nocookie.com/embed/${vid}?rel=0&modestbranding=1`;
+      iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+      iframe.allowFullscreen = true;
+      iframe.loading = 'lazy';
+      slide.appendChild(iframe);
+      stage.appendChild(slide);
+    });
+    const prevBtn = document.createElement('button'); prevBtn.className='slider-btn prev'; prevBtn.textContent='❮';
+    const nextBtn = document.createElement('button'); nextBtn.className='slider-btn next'; nextBtn.textContent='❯';
+    stage.appendChild(prevBtn); stage.appendChild(nextBtn);
+
+    const dots = document.createElement('div'); dots.className = 'slider-dots';
+    const thumbs = document.createElement('div'); thumbs.className = 'slider-thumbs';
+    cat.ids.forEach((vid,i) => {
+      const d = document.createElement('button'); d.className = 'slider-dot' + (i===0?' active':'');
+      dots.appendChild(d);
+      const tb = document.createElement('button'); tb.className = 'slider-thumb-btn' + (i===0?' active':'');
+      const img = document.createElement('img');
+      img.src = `https://img.youtube.com/vi/${vid}/hqdefault.jpg`; img.alt = `${cat.category} 썸네일 ${i+1}`; img.loading='lazy';
+      tb.appendChild(img); thumbs.appendChild(tb);
+    });
+
+    root.appendChild(stage); root.appendChild(dots); root.appendChild(thumbs);
+    panel.appendChild(root);
+    panelsEl.appendChild(panel);
+
+    let cur = 0;
+    const total = cat.ids.length;
+    const slides = stage.querySelectorAll('.slider-slide');
+    const dotEls = dots.querySelectorAll('.slider-dot');
+    const thumbEls = thumbs.querySelectorAll('.slider-thumb-btn');
+    function goTo(n){
+      if(n<0) n = total-1; if(n>=total) n = 0;
+      slides[cur].classList.remove('active'); dotEls[cur].classList.remove('active'); thumbEls[cur].classList.remove('active');
+      cur = n;
+      slides[cur].classList.add('active'); dotEls[cur].classList.add('active'); thumbEls[cur].classList.add('active');
+    }
+    prevBtn.addEventListener('click', () => goTo(cur-1));
+    nextBtn.addEventListener('click', () => goTo(cur+1));
+    dotEls.forEach((d,i) => d.addEventListener('click', () => goTo(i)));
+    thumbEls.forEach((t,i) => t.addEventListener('click', () => goTo(i)));
+
+    btn.addEventListener('click', () => {
+      tabsEl.querySelectorAll('.pf-cat-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      panelsEl.querySelectorAll('.pf-panel').forEach(p => p.classList.remove('active'));
+      panel.classList.add('active');
+    });
+  });
+}
+buildPortfolio(PORTFOLIO_VIDEOS);
+
+/* ============================================================================
+   견적 계산기
+============================================================================ */
+let selectedPkg = null;
+let selectedOpts = {};
+
+function renderPkgList(){
+  const el = document.getElementById('pkgList');
+  el.innerHTML = PACKAGES.map(p => `
+    <label class="pkg-option" data-id="${p.id}">
+      <span class="pkg-option-left"><input type="radio" name="pkg" value="${p.id}"><span>${p.name}</span></span>
+      <span class="pkg-option-price">${won(p.price)}원~</span>
+    </label>
+  `).join('');
+  el.querySelectorAll('.pkg-option').forEach(row => {
+    const input = row.querySelector('input');
+    input.addEventListener('change', () => {
+      el.querySelectorAll('.pkg-option').forEach(r => r.classList.remove('checked'));
+      row.classList.add('checked');
+      selectedPkg = PACKAGES.find(p => p.id === row.dataset.id);
+      updateReceipt();
+    });
+    row.addEventListener('click', e => { if(e.target.tagName !== 'INPUT'){ input.checked = true; input.dispatchEvent(new Event('change')); } });
+  });
+}
+
+function renderOptList(){
+  const el = document.getElementById('optList');
+  el.innerHTML = OPTIONS.map(o => `
+    <label class="pkg-option" data-id="${o.id}">
+      <span class="pkg-option-left"><input type="checkbox" value="${o.id}"><span>${o.name}</span></span>
+      <span class="pkg-option-price">${won(o.price)}원~</span>
+    </label>
+  `).join('');
+  el.querySelectorAll('.pkg-option').forEach(row => {
+    const input = row.querySelector('input');
+    input.addEventListener('change', () => {
+      const opt = OPTIONS.find(o => o.id === row.dataset.id);
+      if(input.checked){ selectedOpts[opt.id] = opt; row.classList.add('checked'); }
+      else{ delete selectedOpts[opt.id]; row.classList.remove('checked'); }
+      updateReceipt();
+    });
+    row.addEventListener('click', e => { if(e.target.tagName !== 'INPUT'){ input.checked = !input.checked; input.dispatchEvent(new Event('change')); } });
+  });
+}
+
+function updateReceipt(){
+  const box = document.getElementById('receiptBox');
+  const items = [];
+  if(selectedPkg) items.push(selectedPkg);
+  Object.values(selectedOpts).forEach(o => items.push(o));
+
+  if(items.length === 0){
+    box.innerHTML = '<div class="receipt-empty">선택한 항목이 없습니다</div>';
+    return;
+  }
+  let total = 0;
+  let html = '';
+  items.forEach(it => {
+    total += it.price;
+    html += `<div class="receipt-item"><span>${it.name}</span><span>${won(it.price)}원~</span></div>`;
+  });
+  html += `<div class="receipt-total"><span>예상 합계</span><span>${won(total)}원~</span></div>`;
+  box.innerHTML = html;
+}
+renderPkgList();
+renderOptList();
+updateReceipt();
+
+/* 신청 내용 복사 */
+document.getElementById('copyBtn').addEventListener('click', () => {
+  const items = [];
+  if(selectedPkg) items.push(selectedPkg);
+  Object.values(selectedOpts).forEach(o => items.push(o));
+  let receiptText = '  선택 없음';
+  let total = 0;
+  if(items.length > 0){
+    receiptText = items.map(it => { total += it.price; return `  - ${it.name} : ${won(it.price)}원~`; }).join('\n');
+  }
+  const nickname = document.getElementById('fNickname').value || '(미입력)';
+  const gender   = document.getElementById('fGender').value || '(미입력)';
+  const concept  = document.getElementById('fConcept').value || '(미입력)';
+  const ref      = document.getElementById('fRef').value || '(미입력)';
+  const etc      = document.getElementById('fEtc').value || '(미입력)';
+
+  const text = `❄ 솜이 - 버츄얼 제작 신청서
+━━━━━━━━━━━━━━━━━━━━━━━━
+💠 선택 견적
+${receiptText}
+  ────────────────
+  예상 합계 : ${won(total)}원~
+━━━━━━━━━━━━━━━━━━━━━━━━
+✔ 방송 닉네임 / 방송국 주소 : ${nickname}
+✔ 캐릭터 성별 : ${gender}
+✔ 캐릭터 컨셉 및 설정 : ${concept}
+✔ 참고 자료 : ${ref}
+✔ 기타 요청사항 : ${etc}
+━━━━━━━━━━━━━━━━━━━━━━━━`;
+
+  const showToast = () => {
+    const t = document.getElementById('copyToast');
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3200);
+  };
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(showToast).catch(() => fallbackCopy(text, showToast));
+  } else {
+    fallbackCopy(text, showToast);
+  }
+});
+function fallbackCopy(text, cb){
+  const ta = document.createElement('textarea');
+  ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+  document.body.appendChild(ta); ta.focus(); ta.select();
+  try{ document.execCommand('copy'); cb(); }catch(e){ alert('복사에 실패했습니다. 직접 선택하여 복사해주세요.'); }
+  document.body.removeChild(ta);
+}
+
+/* ============================================================================
+   스크롤 UI (맨 위로 버튼)
+============================================================================ */
+const backTop = document.getElementById('backTop');
+window.addEventListener('scroll', () => {
+  backTop.classList.toggle('show', window.scrollY > 500);
+});
+backTop.addEventListener('click', () => window.scrollTo({top:0, behavior:'smooth'}));
+
+/* fade-in 스크롤 등장 */
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('visible'); observer.unobserve(e.target); } });
+}, { threshold: 0.08 });
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+/* ============================================================================
+   이미지 라이트박스 (프로필 사진 · 작업과정 이미지 클릭 시 크게 보기)
+============================================================================ */
+function openLightbox(src, alt){
+  document.getElementById('lightboxImg').src = src;
+  document.getElementById('lightboxImg').alt = alt || '';
+  document.getElementById('lightbox').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeLightbox(){
+  document.getElementById('lightbox').classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.getElementById('lightboxClose').addEventListener('click', closeLightbox);
+document.getElementById('lightbox').addEventListener('click', e => { if(e.target === e.currentTarget) closeLightbox(); });
+document.addEventListener('keydown', e => { if(e.key === 'Escape') closeLightbox(); });
+
+function enableLightboxOn(selector){
+  document.querySelectorAll(selector).forEach(img => {
+    img.addEventListener('click', () => openLightbox(img.src, img.alt));
+  });
+}
+enableLightboxOn('.hero-avatar');
+enableLightboxOn('.item-card-img img');
+enableLightboxOn('.workflow-card-img img');
+</script>
+</body>
+</html>
