@@ -167,21 +167,20 @@ input,textarea,select{font-family:inherit;font-size:inherit;color:inherit;}
 .reservation-badge strong{display:block;font-size:12.5px;color:var(--navy-sub);font-weight:700;letter-spacing:.02em;}
 .reservation-badge p{font-size:14.5px;font-weight:700;color:var(--navy);margin-top:1px;}
 
-/* 예약 슬롯 동그라미 : 꽉 찬 동그라미 = 마감 슬롯, 빈 동그라미 = 남은 슬롯 (예약 OFF 시 스크립트가 display:none 처리) */
-.reservation-slots{display:flex;align-items:center;gap:8px;margin-top:8px;}
-.slot-dot{
-  width:13px;height:13px;border-radius:50%;
-  border:2px solid var(--ice-600);background:transparent;box-sizing:border-box;
-  box-shadow:0 2px 6px rgba(65,121,184,.18);
-}
-.slot-dot.filled{background:var(--ice-600);}
-@media (max-width:760px){
-  .reservation-slots{justify-content:center;}
-}
+/* ✏️ 매월 예약 슬롯 — 예약현황 배지 바로 아래에 표시되는 월별 예약 슬롯 카드 (동그라미로 표현) */
+.reservation-slots{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:8px;}
+.slot-card{padding:14px 20px;border-radius:var(--radius-md);text-align:center;min-width:84px;}
+.slot-card-month{font-family:var(--font-display);font-size:15px;color:var(--navy);margin-bottom:9px;letter-spacing:.01em;}
+.slot-dots{display:flex;gap:6px;justify-content:center;}
+.slot-dot{width:13px;height:13px;border-radius:50%;flex-shrink:0;}
+.slot-dot.filled{background:linear-gradient(135deg,var(--ice-500),var(--ice-700));box-shadow:0 2px 6px rgba(65,121,184,.4);}
+.slot-dot.empty{background:rgba(255,255,255,.5);border:1.5px solid var(--ice-400);}
+
 @media (max-width:760px){
   .hero-inner{grid-template-columns:1fr;text-align:center;gap:32px;}
   .hero-avatar-ring{max-width:220px;margin:0 auto;}
   .hero-eyebrow{justify-content:center;}
+  .reservation-slots{justify-content:center;}
 }
 </style>
 </head>
@@ -216,11 +215,11 @@ input,textarea,select{font-family:inherit;font-size:inherit;color:inherit;}
         <div>
           <strong>현재 예약 현황</strong>
           <p id="reservationText">예약 가능 · 순차 상담 진행 중</p>
-          <!-- ✏️ 예약 슬롯 동그라미 : 스크립트의 "FULL_SLOT"(꽉 찬 동그라미), "EMPTY_SLOT"(빈 동그라미) 숫자만 바꾸면 자동 반영됩니다.
-               예약이 OFF 상태이면 이 동그라미들은 스크립트에 의해 자동으로 사라집니다. -->
-          <div class="reservation-slots" id="reservationSlots"></div>
         </div>
       </div>
+      <!-- ✏️ 매월 예약 슬롯 위치 : RESERVATION_OPEN이 false면 이 영역 전체가 자동으로 사라집니다.
+           슬롯 숫자 수정 위치 : 페이지 하단 스크립트의 "RESERVATION_SLOT_MAX / RESERVATION_SLOT_MONTHS / RESERVATION_SLOT_COUNTS" 값만 바꾸면 자동 반영됩니다. -->
+      <div class="reservation-slots" id="reservationSlots"></div>
     </div>
   </div>
 </header>
@@ -641,41 +640,58 @@ const RESERVATION_TEXT_OPEN = '예약 가능 · 순차 상담 진행 중';
 const RESERVATION_TEXT_CLOSED = '예약 불가 · 마감되었습니다';
 
 /* ----------------------------------------------------------------------------
-   ✏️ [예약 슬롯 동그라미] FULL_SLOT = 꽉 찬 동그라미 개수, EMPTY_SLOT = 빈 동그라미 개수
-   아래 두 숫자만 바꾸면 예약 현황 아래의 동그라미 개수가 자동으로 바뀝니다.
-   (기본값 : 꽉 찬 동그라미 3개 + 빈 동그라미 2개)
+   ✏️ [매월 예약 슬롯] RESERVATION_OPEN이 false이면 이 영역 전체가 자동으로 사라집니다.
+   RESERVATION_SLOT_MAX    : 슬롯 카드 하나에 표시할 전체 동그라미 개수(공통 값)
+   RESERVATION_SLOT_MONTHS : 표시할 월(숫자) 배열 — 순서대로 카드가 만들어집니다
+   RESERVATION_SLOT_COUNTS : 각 월에서 "꽉 찬 동그라미"로 표시할 개수(RESERVATION_SLOT_MONTHS와 같은 순서/개수).
+                              나머지는 자동으로 빈 동그라미로 채워집니다.
+   예) MAX=3, MONTHS=[7,8,9], COUNTS=[1,2,3]
+       → 7월 카드 : 꽉 찬 동그라미 1개 + 빈 동그라미 2개
+       → 8월 카드 : 꽉 찬 동그라미 2개 + 빈 동그라미 1개
+       → 9월 카드 : 꽉 찬 동그라미 3개
 ---------------------------------------------------------------------------- */
-const FULL_SLOT = 3;
-const EMPTY_SLOT = 2;
+const RESERVATION_SLOT_MAX = 3;
+const RESERVATION_SLOT_MONTHS = [7, 8, 9];
+const RESERVATION_SLOT_COUNTS = [1, 2, 3];
 
 function applyReservationStatus(){
   const badge = document.getElementById('reservationBadge');
   const text = document.getElementById('reservationText');
-  const slotsEl = document.getElementById('reservationSlots');
   if(RESERVATION_OPEN){
     badge.classList.remove('status-closed');
     badge.classList.add('status-open');
     text.textContent = RESERVATION_TEXT_OPEN;
-
-    /* 예약 ON일 때만 슬롯 동그라미를 그립니다. 꽉 찬 동그라미(FULL_SLOT) 뒤에 빈 동그라미(EMPTY_SLOT)가 이어집니다. */
-    let dots = '';
-    for(let i=0;i<FULL_SLOT;i++){ dots += '<span class="slot-dot filled" aria-hidden="true"></span>'; }
-    for(let i=0;i<EMPTY_SLOT;i++){ dots += '<span class="slot-dot" aria-hidden="true"></span>'; }
-    slotsEl.innerHTML = dots;
-    slotsEl.style.display = 'flex';
-    slotsEl.setAttribute('aria-label', `전체 ${FULL_SLOT + EMPTY_SLOT}자리 중 ${EMPTY_SLOT}자리 예약 가능`);
   } else {
     badge.classList.remove('status-open');
     badge.classList.add('status-closed');
     text.textContent = RESERVATION_TEXT_CLOSED;
-
-    /* 예약 OFF일 때는 슬롯 동그라미를 완전히 제거합니다. */
-    slotsEl.innerHTML = '';
-    slotsEl.style.display = 'none';
-    slotsEl.removeAttribute('aria-label');
   }
 }
 applyReservationStatus();
+
+function renderReservationSlots(){
+  const el = document.getElementById('reservationSlots');
+  if(!RESERVATION_OPEN){
+    el.innerHTML = '';
+    el.style.display = 'none';
+    return;
+  }
+  el.style.display = '';
+  el.innerHTML = RESERVATION_SLOT_MONTHS.map((month, i) => {
+    const filled = Math.max(0, Math.min(RESERVATION_SLOT_COUNTS[i] ?? 0, RESERVATION_SLOT_MAX));
+    let dots = '';
+    for(let d = 0; d < RESERVATION_SLOT_MAX; d++){
+      dots += `<span class="slot-dot ${d < filled ? 'filled' : 'empty'}"></span>`;
+    }
+    return `
+      <div class="slot-card glass">
+        <div class="slot-card-month">${month}월</div>
+        <div class="slot-dots">${dots}</div>
+      </div>
+    `;
+  }).join('');
+}
+renderReservationSlots();
 
 /* ----------------------------------------------------------------------------
    ✏️ [이미지 수정 영역 1] 일러스트 / 리깅 제작 항목 이미지
