@@ -650,9 +650,9 @@ const RESERVATION_TEXT_CLOSED = '예약 불가 · 마감되었습니다';
        → 8월 카드 : 꽉 찬 동그라미 2개 + 빈 동그라미 1개
        → 9월 카드 : 꽉 찬 동그라미 3개
 ---------------------------------------------------------------------------- */
-const RESERVATION_SLOT_MAX = 3;
-const RESERVATION_SLOT_MONTHS = [7, 8, 9];
-const RESERVATION_SLOT_COUNTS = [1, 2, 3];
+const RESERVATION_SLOT_MAX = 2;
+const RESERVATION_SLOT_MONTHS = [9, 10, 11,];
+const RESERVATION_SLOT_COUNTS = [3, 0, 0];
 
 function applyReservationStatus(){
   const badge = document.getElementById('reservationBadge');
